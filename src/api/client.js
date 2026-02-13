@@ -8,7 +8,7 @@ const hostname = window.location.hostname;
 // 1. Environment Variable (VITE_API_URL) - Used for Production/Vercel
 // 2. Local Logic - Used for local development
 const baseURL = import.meta.env.MODE === 'production' 
-  ? (import.meta.env.VITE_API_URL || `http://${hostname}:8000/api/v1`)
+  ? (import.meta.env.VITE_API_URL || `/api/v1`)
   : `http://${hostname}:8000/api/v1`;
 
 const api = axios.create({
