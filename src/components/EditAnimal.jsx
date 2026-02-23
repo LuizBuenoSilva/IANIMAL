@@ -8,6 +8,7 @@ const EditAnimal = () => {
   const [animal, setAnimal] = useState(null);
   const [formData, setFormData] = useState({ name: '', breed: '', weight: '' });
   const [loading, setLoading] = useState(true);
+  const [statusData, setStatusData] = useState({ status: '', amount: '' });
 
   useEffect(() => {
     const fetchAnimal = async () => {
@@ -18,6 +19,10 @@ const EditAnimal = () => {
           name: response.data.name || '',
           breed: response.data.breed || '',
           weight: response.data.weight || ''
+        });
+        setStatusData({
+          status: response.data.status || 'active',
+          amount: ''
         });
       } catch (error) {
         console.error("Error fetching animal:", error);
@@ -37,6 +42,22 @@ const EditAnimal = () => {
     } catch (error) {
       console.error("Error updating animal:", error);
       alert('Erro ao atualizar animal.');
+    }
+  };
+
+  const handleStatusSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put(`/animals/${id}/status`, {
+        status: statusData.status,
+        amount: statusData.status === 'sold' ? parseFloat(statusData.amount || '0') : undefined
+      });
+      alert('Status atualizado com sucesso!');
+      const response = await api.get(`/animals/${id}`);
+      setAnimal(response.data);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert('Erro ao atualizar status.');
     }
   };
 
@@ -91,6 +112,40 @@ const EditAnimal = () => {
             <button type="button" onClick={() => navigate('/')} style={{...buttonStyle, backgroundColor: '#7f8c8d'}}>Cancelar</button>
         </div>
       </form>
+      
+      <div style={{ marginTop: '30px' }}>
+        <h2 style={{ color: '#2c3e50' }}>Status Atual: {animal.status}</h2>
+        <form onSubmit={handleStatusSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Status</label>
+            <select
+              value={statusData.status}
+              onChange={(e) => setStatusData({ ...statusData, status: e.target.value })}
+              style={inputStyle}
+            >
+              <option value="active">Ativo</option>
+              <option value="sold">Vendido</option>
+              <option value="slaughtered">Abatido</option>
+            </select>
+          </div>
+          {statusData.status === 'sold' && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Valor da Venda (R$)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={statusData.amount}
+                onChange={(e) => setStatusData({ ...statusData, amount: e.target.value })}
+                style={inputStyle}
+                placeholder="0,00"
+              />
+            </div>
+          )}
+          <div>
+            <button type="submit" style={{...buttonStyle, backgroundColor: '#27ae60'}}>Atualizar Status</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

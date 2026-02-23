@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api, { baseURL } from '../api/client';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -80,7 +80,7 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, [page]); // Re-run when page changes
 
-  if (loading) return <div style={{padding: 20}}>Loading Dashboard...</div>;
+  if (loading) return <div style={{padding: 20}}>Carregando painel...</div>;
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -130,7 +130,6 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Top Stats Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
         <div style={cardStyle}>
           <h3>Animais Hoje</h3>
@@ -143,6 +142,28 @@ const Dashboard = () => {
         <div style={cardStyle}>
           <h3>Câmeras Ativas</h3>
           <p style={numberStyle}>{cameras.length}</p>
+        </div>
+        <div style={cardStyle}>
+          <h3>Entradas Hoje</h3>
+          <p style={numberStyle} title="Contagem de 'in' no dia">{stats?.entries_today || 0}</p>
+        </div>
+        <div style={cardStyle}>
+          <h3>Saídas Hoje</h3>
+          <p style={numberStyle} title="Contagem de 'out' no dia">{stats?.exits_today || 0}</p>
+        </div>
+        <div style={cardStyle}>
+          <h3>Saldo (R$)</h3>
+          <p
+            style={{
+              ...numberStyle,
+              color: ((stats && typeof stats.balance === 'number' ? stats.balance : 0) >= 0) ? '#27ae60' : '#e74c3c'
+            }}
+          >
+            {(() => {
+              const balance = stats && typeof stats.balance === 'number' ? stats.balance : 0;
+              return balance.toFixed(2);
+            })()}
+          </p>
         </div>
       </div>
 
@@ -207,6 +228,43 @@ const Dashboard = () => {
 
       </div>
 
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+        <div style={cardStyle}>
+          <h2>Status dos Animais</h2>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Ativos', value: stats?.active_count || 0 },
+                    { name: 'Vendidos', value: stats?.sold_count || 0 },
+                    { name: 'Abatidos', value: stats?.slaughtered_count || 0 },
+                  ]}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  <Cell fill="#27ae60" />
+                  <Cell fill="#3498db" />
+                  <Cell fill="#e74c3c" />
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div style={cardStyle}>
+          <h2>Resumo</h2>
+          <p>Ativos: {stats?.active_count || 0}</p>
+          <p>Vendidos: {stats?.sold_count || 0}</p>
+          <p>Abatidos: {stats?.slaughtered_count || 0}</p>
+        </div>
+      </div>
+
       {/* Animals List Table */}
       <div style={{ marginTop: '40px' }}>
         <h2>📋 Registro de Animais</h2>
@@ -257,6 +315,25 @@ const Dashboard = () => {
               ))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Pagination */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '10px', alignItems: 'center' }}>
+            <button 
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                style={{ ...buttonStyle, backgroundColor: page === 1 ? '#ccc' : '#3498db' }}
+            >
+                Anterior
+            </button>
+            <span style={{ fontSize: '1.2em', fontWeight: 'bold' }}>Página {page}</span>
+            <button 
+                onClick={() => setPage(p => p + 1)}
+                disabled={animals.length < limit}
+                style={{ ...buttonStyle, backgroundColor: animals.length < limit ? '#ccc' : '#3498db' }}
+            >
+                Próxima
+            </button>
         </div>
       </div>
     </div>
