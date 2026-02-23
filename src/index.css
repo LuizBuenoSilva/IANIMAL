@@ -1,15 +1,27 @@
 /* Simple Reset */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f7fa;
+  background-color: #f1f8e9; /* agro green background */
+  color: #263238;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Links padrão */
+a {
+  color: #2e7d32;
+}
+
+/* Scrollbar suave */
+* {
+  scrollbar-color: #a5d6a7 #e8f5e9;
+  scrollbar-width: thin;
 }
